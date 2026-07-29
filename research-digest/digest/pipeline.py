@@ -106,7 +106,7 @@ def run(config: dict, profile_name: str = None, provider_key: str = None,
     out_dir = ROOT / config["paths"]["out"]
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{issue}-{profile_name}.md"
-    out_path.write_text(markdown)
+    out_path.write_text(markdown, encoding="utf-8")
 
     db.mark_digested(conn, [r["uid"] for r in final], issue)
     conn.close()

@@ -6,6 +6,7 @@ Normalized item:
 """
 from __future__ import annotations
 
+import html
 import re
 import time
 import xml.etree.ElementTree as ET
@@ -25,7 +26,7 @@ _TAGS = re.compile(r"<[^>]+>")
 def _clean(text: str | None) -> str:
     if not text:
         return ""
-    return " ".join(_TAGS.sub(" ", text).split())
+    return " ".join(_TAGS.sub(" ", html.unescape(text)).split())
 
 
 def _iso(value: str | None) -> str | None:
