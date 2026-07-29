@@ -1,0 +1,23 @@
+# Which interest profile drives this run. Files live in profiles/.
+active_profile: ai-geopolitics
+
+llm:
+  # gemini | groq | ollama  — override in the dashboard dropdown or with --provider
+  provider: gemini
+  models:
+    gemini: gemini-2.0-flash
+    groq: llama-3.3-70b-versatile
+    ollama: llama3.1:8b
+  # Items sent to the LLM per request. Keep small; free tiers cap tokens, not just calls.
+  batch_size: 8
+
+pipeline:
+  lookback_days: 7
+  # Heuristic stage keeps this many; only these reach an LLM.
+  prefilter_keep: 40
+  # Final digest length after LLM re-ranking.
+  digest_size: 15
+
+paths:
+  db: data/digest.sqlite3
+  out: out

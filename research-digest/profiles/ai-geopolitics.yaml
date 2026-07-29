@@ -1,0 +1,103 @@
+name: AI & Geopolitics
+description: >
+  Where frontier AI capability meets state power: export controls, compute supply
+  chains, national AI strategy, military application, and the governance fights
+  that follow.
+
+sources:
+  arxiv:
+    categories: [cs.AI, cs.CY, cs.LG, cs.CR]
+    max_per_category: 150
+  rss:
+    # Verify these with `python cli.py check-feeds` before trusting them —
+    # think-tank feed URLs move around. Drop any that fail.
+    - name: CSET Georgetown
+      url: https://cset.georgetown.edu/feed/
+    - name: Lawfare
+      url: https://www.lawfaremedia.org/feeds/articles
+    - name: Brookings
+      url: https://news.google.com/rss/search?q=site:brookings.edu&hl=en-US&gl=US&ceid=US:en
+    - name: CSIS
+      url: https://news.google.com/rss/search?q=site:csis.org&hl=en-US&gl=US&ceid=US:en
+    - name: Stanford HAI
+      url: https://news.google.com/rss/search?q=site:hai.stanford.edu&hl=en-US&gl=US&ceid=US:en
+    - name: Just Security
+      url: https://www.justsecurity.org/feed/
+    - name: War on the Rocks
+      url: https://warontherocks.com/feed/
+    - name: Carnegie Endowment
+      url: https://news.google.com/rss/search?q=site:carnegieendowment.org&hl=en-US&gl=US&ceid=US:en
+    - name: Import AI
+      url: https://importai.substack.com/feed
+    - name: Google DeepMind
+      url: https://deepmind.google/blog/rss.xml
+
+# --- Heuristic prefilter (stage 1, no LLM cost) ---------------------------
+scoring:
+  # Matched case-insensitively against title and abstract.
+  # Title hits are worth double (see rank.py).
+  keywords:
+    export control: 6
+    entity list: 6
+    chip ban: 6
+    semiconductor: 5
+    compute governance: 5
+    ai safety institute: 5
+    frontier model: 4
+    dual-use: 4
+    national security: 4
+    sanctions: 4
+    supply chain: 3
+    ai act: 4
+    autonomous weapon: 5
+    china: 3
+    taiwan: 4
+    tsmc: 4
+    nvidia: 3
+    open weights: 3
+    evaluation: 2
+    misuse: 3
+    critical infrastructure: 3
+    industrial policy: 4
+    talent: 1
+
+  # Publishing orgs / author affiliations worth surfacing on name alone.
+  orgs:
+    CSET: 4
+    RAND: 3
+    Brookings: 2
+    CSIS: 3
+    Carnegie: 2
+    GovAI: 4
+    AI Now: 2
+
+  # Bias toward the arXiv categories that actually carry policy content.
+  category_weights:
+    cs.CY: 4
+    cs.CR: 2
+    cs.AI: 1
+    cs.LG: 0
+
+  # Hard drops — cheap way to kill recurring noise.
+  exclude:
+    - survey of surveys
+    - student paper
+
+# --- LLM re-rank rubric (stage 2) ----------------------------------------
+rubric: |
+  You are the research analyst for a weekly private intelligence digest on
+  AI and geopolitics. The reader is a technically fluent operations lead who
+  already follows frontier AI closely; assume they know what an LLM is and
+  what export controls are. They do not need definitions. They need judgment.
+
+  Score each item 0-10 for inclusion. Score HIGH for:
+    - Concrete state action: rules, licences, enforcement, procurement, funding
+    - Hard numbers on compute, fabs, energy, or model capability
+    - Analysis that changes how a well-informed reader would forecast
+    - Primary sources over commentary about primary sources
+
+  Score LOW for:
+    - Restatements of last month's news with no new fact
+    - Op-eds whose thesis is a well-worn position
+    - Incremental benchmark papers with no policy or strategic implication
+    - Anything whose main claim is that AI is important
