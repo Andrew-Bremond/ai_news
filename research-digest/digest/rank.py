@@ -6,8 +6,17 @@ down, the digest still ships on these scores alone.
 """
 from __future__ import annotations
 
+import re
+
 TITLE_MULTIPLIER = 2.0
 RECENCY_BONUS = 1.5  # applied to the newest third of the batch
+
+_NON_ALNUM = re.compile(r"[^a-z0-9]+")
+
+
+def _title_key(title: str) -> str:
+    """Normalised title for cross-feed duplicate detection."""
+    return _NON_ALNUM.sub(" ", title.lower()).strip()
 
 
 def score_item(item, scoring: dict) -> float:
@@ -58,5 +67,17 @@ def rank(items, scoring: dict, keep: int) -> tuple[dict[str, float], list]:
         scores[it["uid"]] += RECENCY_BONUS
 
     ranked = sorted(items, key=lambda r: scores[r["uid"]], reverse=True)
-    top = [r for r in ranked if scores[r["uid"]] > 0][:keep]
+
+    # Drop cross-feed duplicates: same normalised title, keep highest scorer.
+    seen_titles: set[str] = set()
+    deduped = []
+    for it in ranked:
+        if scores[it["uid"]] <= 0:
+            continue
+        key = _title_key(it["title"] or "")
+        if key and key not in seen_titles:
+            seen_titles.add(key)
+            deduped.append(it)
+
+    top = deduped[:keep]
     return scores, top
